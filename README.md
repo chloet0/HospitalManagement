@@ -14,3 +14,6 @@ What I Learned
   Using aggregation, grouping, and date functions
   Handling real-world schema relationships (e.g., appointment ↔ billing ↔ treatment)
   Designing insights relevant to business users (finance, admin, HR)
+  
+  Dataset from: 
+https://www.kaggle.com/datasets/kanakbaghel/hospital-management-dataset
