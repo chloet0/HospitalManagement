@@ -1,82 +1,90 @@
 -- basic queries
 
     -- total number of patients
-    select count(*) as total_patients
-    from patients; 
-    
+    SELECT COUNT(*) AS total_patients
+    FROM patients; 
+        
     -- total appointments
-    select count(*) as total_appointments
-    from appointments; 
-    
+    SELECT COUNT(*) AS total_appointments
+    FROM appointments; 
+        
     -- appointments by status
-    select status, count(*) as total_status_type
-    from appointments
-    group by status;
-    
+    SELECT status, COUNT(*) AS total_status_type
+    FROM appointments
+    GROUP BY status;
+        
     -- doctor count by specialization
-    select specialization, count(*)
-    from doctors
-    group by specialization
+    SELECT specialization, COUNT(*)
+    FROM doctors
+    GROUP BY specialization;
+    
+    -- Top 5 reasons for visit
+    SELECT reason_for_visit, COUNT(*) AS count
+    FROM appointments
+    GROUP BY reason_for_visit
+    ORDER BY count DESC
+    LIMIT 5;
 
+-- intermediate queries
 
+    -- appointment count by doctor
+    SELECT doctor_id, COUNT(*) AS total_appointments
+    FROM appointments
+    GROUP BY doctor_id
+    ORDER BY total_appointments DESC;
+    
+    -- patient age
+    SELECT patient_id, TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) AS age
+    FROM patients;
+    
+    -- monthly appointments trends
+    SELECT DATE_FORMAT(appointment_date, '%Y-%m') AS month, COUNT(*) AS num_appointments
+    FROM appointments
+    GROUP BY month
+    ORDER BY month;
+    
+    -- most common reason for visit
+    SELECT reason_for_visit, COUNT(*) AS appointment_count
+    FROM appointments
+    GROUP BY reason_for_visit
+    ORDER BY COUNT(*) DESC; 
+    
+    -- total revenue by insurance provider
+    SELECT p.insurance_provider, ROUND(SUM(b.amount), 2) AS total_revenue
+    FROM billing b
+    JOIN patients p USING (patient_id)
+    GROUP BY insurance_provider; 
 
+    -- List of patients who haven't paid their bill (failed)
+    SELECT p.first_name, p.last_name, b.amount, b.bill_date
+    FROM billing b
+    JOIN patients p ON b.patient_id = p.patient_id
+    WHERE b.payment_status = 'failed';
 
-
--- Appointment status counts
-SELECT status, COUNT(*) AS count
-FROM appointments
-GROUP by status;
-
--- Top 5 reasons for visit
-SELECT reason_for_visit, COUNT(*) as count
-FROM appointments
-GROUP by reason_for_visit
-ORDER by count DESC
-LIMIT 5;
-
--- total revenue collected by payment method
-SELECT payment_method, ROUND(SUM(amount),2) AS total_collected
-FROM billing
-WHERE payment_status = 'Paid'
-GROUP BY payment_method;
-
--- List of patients who haven't paid their bill (failed)
-SELECT p.first_name, p.last_name, b.amount, b.bill_date
-FROM billing b
-JOIN patients p ON b.patient_id = p.patient_id
-WHERE b.payment_status = 'failed';
-
--- Doctors by specialization and experience
-SELECT specialization, AVG(years_experience) AS avg_experience, COUNT(*) AS num_doctors
-FROM doctors
-GROUP by specialization
-ORDER BY avg_experience DESC; 
-
--- Total treatment cost per patient
-SELECT p.patient_id, p.first_name, p.last_name, ROUND(SUM(t.cost), 2) AS total_cost
-FROM treatments t
-JOIN appointments a ON t.appointment_id = a.appointment_id
-JOIN patients p ON a.patient_id = p.patient_id
-GROUP BY p.patient_id, p.first_name, p.last_name
-ORDER BY total_cost DESC;
-
--- Most frequent patients
-SELECT p.first_name, p.last_name, COUNT(*) AS visit_count
-FROM appointments a
-JOIN patients p ON a.patient_id = p.patient_id
-GROUP BY a.patient_id, p.first_name, p.last_name
-ORDER BY visit_count DESC
-LIMIT 5;
-
--- Monthly revenue trend
-SELECT DATE_FORMAT(bill_date, '%Y-%m') AS month, ROUND(SUM(amount),2) AS total_revenue
-FROM billing
-WHERE payment_status = 'Paid'
-GROUP BY month
-ORDER BY month;
-
--- treatments by type and average cost
-SELECT treatment_type, COUNT(*) AS total_treatments, ROUND(AVG(cost),2) AS avg_cost
-FROM treatments
-GROUP BY treatment_type
-ORDER BY total_treatments DESC;
+    -- Doctors by specialization and experience
+    SELECT specialization, AVG(years_experience) AS avg_experience, COUNT(*) AS num_doctors
+    FROM doctors
+    GROUP by specialization
+    ORDER BY avg_experience DESC; 
+    
+    -- Total treatment cost per patient
+    SELECT p.patient_id, p.first_name, p.last_name, ROUND(SUM(t.cost), 2) AS total_cost
+    FROM treatments t
+    JOIN appointments a ON t.appointment_id = a.appointment_id
+    JOIN patients p ON a.patient_id = p.patient_id
+    GROUP BY p.patient_id, p.first_name, p.last_name
+    ORDER BY total_cost DESC;
+    
+    -- Most frequent patients
+    SELECT p.first_name, p.last_name, COUNT(*) AS visit_count
+    FROM appointments a
+    JOIN patients p ON a.patient_id = p.patient_id
+    GROUP BY a.patient_id, p.first_name, p.last_name
+    ORDER BY visit_count DESC
+    LIMIT 5;
+    
+    -- treatments by type and average cost
+    SELECT treatment_type, COUNT(*) AS total_treatments, ROUND(AVG(cost),2) AS avg_cost
+    FROM treatments
+    GROUP BY treatment_type
+    ORDER BY total_treatments DESC;
