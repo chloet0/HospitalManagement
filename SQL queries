@@ -1,3 +1,27 @@
+-- basic queries
+
+    -- total number of patients
+    select count(*) as total_patients
+    from patients; 
+    
+    -- total appointments
+    select count(*) as total_appointments
+    from appointments; 
+    
+    -- appointments by status
+    select status, count(*) as total_status_type
+    from appointments
+    group by status;
+    
+    -- doctor count by specialization
+    select specialization, count(*)
+    from doctors
+    group by specialization
+
+
+
+
+
 -- Appointment status counts
 SELECT status, COUNT(*) AS count
 FROM appointments
